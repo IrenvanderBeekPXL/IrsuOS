@@ -1,0 +1,16 @@
+# install prerequizites
+sudo add-apt-repository universe
+sudo apt update
+sudo apt upgrade -y
+
+# install Wine
+sudo dpkg --add-architecture i386
+wget -qO- https://dl.winehq.org/wine-builds/Release.key | sudo apt-key add -
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv F987672F
+sudo apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' -y
+sudo apt update
+sudo apt-get install --install-recommends winehq-stable -y
+
+# install new desktop enviroment
+sudo apt install kde-full -y && sudo apt purge ubuntu-desktop -y 
+
