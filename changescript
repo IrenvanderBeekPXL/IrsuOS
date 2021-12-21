@@ -4,8 +4,10 @@ sudo apt update
 sudo apt upgrade -y
 
 # put installer on desktop
-mkdir /etc/skel/Desktop
-cp /usr/share/applications/ubiquity.desktop /etc/skel/Desktop
+ mkdir /etc/skel/Desktop
+ cp /usr/share/applications/ubiquity.desktop /etc/skel/Desktop/
+ chmod +x /etc/skel/Desktop/ubiquity.desktop
+sed -i 's/NotShowIn=KDE;//' /etc/skel/Desktop/ubiquity.desktop
 
 # install Wine
 sudo dpkg --add-architecture i386
@@ -41,3 +43,7 @@ libgoa-1.0-common libpam-gnome-keyring libsoup-gnome2.4-1 libsoup-gnome2.4-1 \
 nautilus-extension-gnome-terminal pinentry-gnome3 yaru-theme-gnome-shell
 sudo apt purge gnome-getting-started-docs gnome-getting-started-docs-ru
 
+# add this to ubuntu.seed without hashtags
+# ubiquity ubiquity/success_command string \
+#      in-target bash -c 'rm -rf /etc/skel/Desktop/ubiquity.desktop'; \
+#      in-target bash -c 'rm -rf /home/*/Desktop/ubiquity.desktop';
