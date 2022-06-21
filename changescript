@@ -3,45 +3,64 @@ sudo add-apt-repository universe
 sudo apt update
 sudo apt upgrade -y
 
-# put installer on desktop
- mkdir /etc/skel/Desktop
- cp /usr/share/applications/ubiquity.desktop /etc/skel/Desktop/
- chmod +x /etc/skel/Desktop/ubiquity.desktop
-sed -i 's/NotShowIn=KDE;//' /etc/skel/Desktop/ubiquity.desktop
 
 # install Wine
 sudo dpkg --add-architecture i386
-wget -qO- https://dl.winehq.org/wine-builds/Release.key | sudo apt-key add -
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv F987672F
-sudo apt-add-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main' -y
+wget -nc https://dl.winehq.org/wine-builds/winehq.key
+sudo mv winehq.key /usr/share/keyrings/winehq-archive.key
+wget -nc https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+sudo mv winehq-jammy.sources /etc/apt/sources.list.d/
 sudo apt update
-sudo apt-get install --install-recommends winehq-stable -y
+sudo apt-get install --install-recommends wine-stable -y
 
-# install new desktop enviroment
-sudo apt install kde-full -y 
-sudo apt purge adwaita-icon-theme gedit-common gir1.2-gdm-1.0 \
-gir1.2-gnomebluetooth-1.0 gir1.2-gnomedesktop-3.0 gir1.2-goa-1.0 \
-gnome-accessibility-themes gnome-bluetooth gnome-calculator gnome-calendar \
-gnome-characters gnome-control-center gnome-control-center-data \
-gnome-control-center-faces gnome-desktop3-data \
-gnome-font-viewer \ 
-gnome-initial-setup gnome-keyring gnome-keyring-pkcs11 gnome-logs \
-gnome-mahjongg gnome-menus gnome-mines gnome-online-accounts \
-gnome-power-manager gnome-screenshot gnome-session-bin gnome-session-canberra \
-gnome-session-common gnome-settings-daemon gnome-settings-daemon-common \
-gnome-shell gnome-shell-common gnome-shell-extension-appindicator \
-gnome-shell-extension-desktop-icons gnome-shell-extension-ubuntu-dock \
-gnome-startup-applications gnome-sudoku gnome-system-monitor gnome-terminal \
-gnome-terminal-data gnome-themes-extra gnome-themes-extra-data gnome-todo \
-gnome-todo-common gnome-user-docs gnome-user-docs-ru gnome-video-effects \
-language-pack-gnome-en language-pack-gnome-en-base language-pack-gnome-ru \
-language-pack-gnome-ru-base language-selector-gnome libgail18 libgail18 \
-libgail-common libgail-common libgnome-autoar-0-0 libgnome-bluetooth13 \
-libgnome-desktop-3-19 libgnome-games-support-1-3 libgnome-games-support-common \
-libgnomekbd8 libgnomekbd-common libgnome-menu-3-0 libgnome-todo libgoa-1.0-0b \
-libgoa-1.0-common libpam-gnome-keyring libsoup-gnome2.4-1 libsoup-gnome2.4-1 \
-nautilus-extension-gnome-terminal pinentry-gnome3 yaru-theme-gnome-shell
-sudo apt purge gnome-getting-started-docs gnome-getting-started-docs-ru
+# install lutris
+sudo add-apt-repository ppa:lutris-team/lutris
+sudo apt update
+sudo apt install lutris -y
+
+# install waydroid
+export distro=focal
+
+
+sudo curl https://repo.waydro.id/waydroid.gpg --output /usr/share/keyrings/waydroid.gpg
+echo "deb [signed-by=/usr/share/keyrings/waydroid.gpg] https://repo.waydro.id/ ${distro} main" | \
+  sudo tee /etc/apt/sources.list.d/waydroid.list
+
+sudo apt update
+sudo apt install -y \
+  build-essential cdbs devscripts equivs fakeroot \
+  git git-buildpackage git-lfs \
+  libgbinder-dev
+
+sudo wget https://raw.githubusercontent.com/MrCyjaneK/waydroid-build/main/build_changelog \
+  -O /usr/bin/build_changelog
+sudo chmod +x ${_}
+
+mkdir ~/build-packages
+cd ${_}
+git clone https://github.com/waydroid/gbinder-python.git
+cd gbinder-python
+build_changelog
+sudo mk-build-deps -ir -t "apt -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
+sudo debuild -b -uc -us
+sudo apt install -f -y ../*.deb
+
+sudo apt remove libgbinder-dev gbinder-python-build-deps git-lfs fakeroot equivs devscripts cdbs -y
+# you can remove git and build-essential packages too
+sudo rm /usr/bin/build_changelog
+
+sudo apt install waydroid -y
+cd
+
+# install chrome
+sudo dpkg -i google-chrome-stable.deb
+
+# remove unnecesarry packets
+sudo apt remove firefox -y
+sudo snap remove firefox
+sudo apt install gnome-disk-utility -y
+sudo apt remove partitionmanager -y
+
 
 # add this to ubuntu.seed without hashtags
 # ubiquity ubiquity/success_command string \
